@@ -13,7 +13,7 @@ ready_dataset[num_cols] = scaler.fit_transform(dataset[num_cols])
 ready_dataset.head()
 
 encoder = OneHotEncoder(sparse=False)
-cat_cols = ['gender', 'enthnicity', 'jundice', 'autism', 'country_of_res']
+cat_cols = ['gender', 'ethnicity', 'jundice', 'autism', 'country_of_res']
 
 # Encode Categorical Data
 dataset_encoded = pd.DataFrame(encoder.fit_transform(ready_dataset[cat_cols]))

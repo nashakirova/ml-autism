@@ -31,8 +31,8 @@ print(dataset.isnull().sum())
 ## Visually inspecting data, I see also that sometimes ethnicity is not set with a proper value and ? is used.
 # I still would prefer not to eliminate the data as it provides a flavor in research, especially given that
 # country is always populated
-# print(dataset[dataset['ethnicity'] == '?'].value_counts())
-# print(dataset[dataset['country_of_res'] == '?'].value_counts())
+print(dataset[dataset['ethnicity'] == '?'].value_counts())
+print(dataset[dataset['country_of_res'] == '?'].value_counts())
 ## As age_desc is validated to be 18 and more all the time with our implanted 2 rows of data, we can safely
 # delete this column
 # print(dataset[dataset['age_desc'] != '18 and more'].value_counts())
