@@ -1,0 +1,3 @@
+Dataset can be found in autism_screening.csv
+Explanation of A1-A10 tags is in AQ10.pdf tag
+Data is prepared, scaled, transformed, and only then is passed to various algorithms.
