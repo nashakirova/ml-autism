@@ -13,7 +13,7 @@ ready_dataset[num_cols] = scaler.fit_transform(dataset[num_cols])
 ready_dataset.head()
 
 encoder = OneHotEncoder(sparse=False)
-cat_cols = ['gender', 'ethnicity', 'jundice', 'autism', 'country_of_res']
+cat_cols = ['gender', 'ethnicity', 'jundice', 'country_of_res']
 
 # Encode Categorical Data
 dataset_encoded = pd.DataFrame(encoder.fit_transform(ready_dataset[cat_cols]))
@@ -24,7 +24,7 @@ ready_dataset = ready_dataset.drop(cat_cols ,axis=1)
 ready_dataset = pd.concat([dataset_encoded, ready_dataset], axis=1)
 
 # Encode target value
-ready_dataset['Class/ASD'] = ready_dataset['Class/ASD'].apply(lambda x: 1 if x == 'yes' else 0)
+ready_dataset=ready_dataset.replace({'no': 0, 'yes': 1, 'NO': 0, 'YES': 1})
 
 print('Shape of dataframe:', ready_dataset.shape)
 ready_dataset.head()

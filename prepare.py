@@ -37,3 +37,4 @@ print(dataset[dataset['country_of_res'] == '?'].value_counts())
 # delete this column
 # print(dataset[dataset['age_desc'] != '18 and more'].value_counts())
 dataset.drop(['age_desc'], axis=1)
+dataset=dataset.replace({'no': 0, 'yes': 1, 'NO': 0, 'YES': 1})
