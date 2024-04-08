@@ -6,7 +6,7 @@ features = ready_dataset[['A1_Score','A2_Score','A3_Score','A4_Score','A5_Score'
 features_reduced = ready_dataset[['A2_Score','A3_Score','A4_Score','A5_Score','A6_Score','A7_Score','A9_Score','A10_Score']]
 
 # Select Target
-target = ready_dataset['autism']
+target = ready_dataset['Class/ASD']
 
 # Set Training and Testing Data
 X, X_test, y, y_test = train_test_split(features_reduced , target, 

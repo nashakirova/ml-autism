@@ -1,0 +1,13 @@
+    ["index", "The participant’s ID number"],
+    ["AX_Score", "Score based on the Autism Spectrum Quotient (AQ) 10 item screening tool AQ-10"],
+    ["age", "Age in years"],
+    ["gender", "Male or Female"],
+    ["ethnicity", "Ethnicities in text form"],
+    ["jaundice", "Whether or not the participant was born with jaundice?"],
+    ["autism", "Whether or not anyone in tbe immediate family has been diagnosed with autism?"],
+    ["country_of_res", "Countries in text format"],
+    ["used_app_before", "Whether the participant has used a screening app"],
+    ["result", "Score from the AQ-10 screening tool"],
+    ["age_desc", "Age as categorical"],
+    ["relation", "Relation of person who completed the test"],
+    ["Class/ASD", "Participant classification"]
