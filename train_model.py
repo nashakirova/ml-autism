@@ -6,10 +6,12 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVR
+from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 from IPython.core.pylabtools import figsize
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 # MAE = mean absolute error
 
@@ -23,6 +25,7 @@ X_test = scaler.transform(X_test)
 def mae(y_true, y_pred):
     return np.mean(abs(y_true - y_pred))
 
+results = {'Model': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]}
 # Takes in a model, trains the model, and evaluates the model on the test set
 def fit_and_evaluate(model):
     # Train the model
@@ -30,48 +33,44 @@ def fit_and_evaluate(model):
     
     # Make predictions and evalute
     model_pred = model.predict(X_test)
-    model_mae = mae(y_test, model_pred)
+    # Calculate true positive, false positive, true negative, false negative
+    tn, fp, fn, tp = confusion_matrix(y_test, model_pred).ravel()
+
+    # Calculate accuracy
+    accuracy = accuracy_score(y_test, model_pred)
     
-    return model_mae
+    # Calculate sensitivity and specificity
+    sensitivity = tp / (tp + fn)
+    specificity = tn / (tn + fp)
+        # Store the results in the dictionary
+    results['Model'].append(model)
+    results['Accuracy'].append(accuracy)
+    results['Sensitivity'].append(sensitivity)
+    results['Specificity'].append(specificity)
+    results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
+    results['MAE'].append(mae(y_test, model_pred))
 
 # classification
 nb_gauss = GaussianNB()
-nb_gauss_mae = fit_and_evaluate(nb_gauss)
+fit_and_evaluate(nb_gauss)
 
 decision_tree = DecisionTreeClassifier()
-decision_tree_mae = fit_and_evaluate(decision_tree)
+fit_and_evaluate(decision_tree)
 
 linear = LinearDiscriminantAnalysis()
-linear_mae = fit_and_evaluate(linear)
+fit_and_evaluate(linear)
 
 knn = KNeighborsClassifier(n_neighbors=10)
-knn_mae = fit_and_evaluate(knn)
+fit_and_evaluate(knn)
 
-svm = SVR(C = 1000, gamma = 0.1)
-svm_mae = fit_and_evaluate(svm)
+svm = SVC(C = 1000, gamma = 0.1)
+fit_and_evaluate(svm)
 
 random_forest = RandomForestClassifier(random_state=60)
-random_forest_mae = fit_and_evaluate(random_forest)
-
-print('NB Gauss mae', nb_gauss_mae)
+fit_and_evaluate(random_forest)
 
 
-plt.style.use('fivethirtyeight')
-figsize(8, 6)
+scores = pd.DataFrame(results)
 
-# Dataframe to hold the results
-model_comparison = pd.DataFrame({'model': ['Naive Bayes', 'Support Vector Machine',
-                                           'Random Forest', 'Linear Discriminant',
-                                            'K-Nearest Neighbors', 'Decision Tree'],
-                                 'mae': [nb_gauss_mae, svm_mae, random_forest_mae, 
-                                         linear_mae, knn_mae, decision_tree_mae]})
-
-# Horizontal bar chart of test mae
-model_comparison.sort_values('mae', ascending = False).plot(x = 'model', y = 'mae', kind = 'barh',
-                                                           color = 'red', edgecolor = 'black')
-
-# Plot formatting
-plt.ylabel(''); plt.yticks(size = 14); plt.xlabel('Mean Absolute Error'); plt.xticks(size = 14)
-plt.title('Model Comparison on Test MAE', size = 20)
-
-plt.show()
+sorted_df = scores.sort_values(by='MAE', ascending=True)
+print(sorted_df)
