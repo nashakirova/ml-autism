@@ -12,6 +12,12 @@ import matplotlib.pyplot as plt
 from IPython.core.pylabtools import figsize
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler, RobustScaler, QuantileTransformer
+from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, PowerTransformer, Normalizer
+import seaborn as sns
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+import pickle
 
 # MAE = mean absolute error
 
@@ -73,4 +79,57 @@ fit_and_evaluate(random_forest)
 scores = pd.DataFrame(results)
 
 sorted_df = scores.sort_values(by='MAE', ascending=True)
-print(sorted_df)
+
+scaling_techniques = [
+    StandardScaler(), 
+    RobustScaler(), 
+    QuantileTransformer(), 
+    MinMaxScaler(),
+    MaxAbsScaler(),
+    PowerTransformer(),
+]
+
+fig, axs = plt.subplots(2, 3, figsize=(15, 6))
+
+# Loop through each subplot and scaling technique
+for i, ax in enumerate(axs.flat):
+    scaler = scaling_techniques[i]
+    X_scaled = scaler.fit_transform(X)
+    df_scaled = pd.concat([pd.DataFrame(X_scaled)], axis=1)
+    mask = np.triu(np.ones_like(df_scaled.corr(), dtype=bool))
+    sns.heatmap(df_scaled.corr(), cmap='coolwarm', annot=False, mask=mask, ax=ax)
+    ax.set_title(f'{type(scaler).__name__}')
+plt.tight_layout()
+#plt.show()
+
+X_scaled = StandardScaler().fit_transform(X)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_state=25)
+scaler = StandardScaler()
+
+names = ['DecisionTreeClassifier', 'RandomForestClassifier', 'LinearDiscriminantAnalysis',
+         'SupportVectorMachine', 'KNearestNeighbor','NaiveBayes']
+models = [
+    DecisionTreeClassifier(max_depth=50, min_samples_leaf=60),
+    RandomForestClassifier(n_estimators=250,max_depth=10, min_samples_leaf=25),
+    LinearDiscriminantAnalysis(), SVC(C=1.0, kernel='rbf', degree=3, gamma='scale'),
+    KNeighborsClassifier(n_neighbors=3),GaussianNB()
+]
+
+results_df = pd.DataFrame(columns=[type(scaler).__name__], index=names)
+trained_models = []
+for counter, model in enumerate(models):
+    # Convert y_train and y_test to 1-dimensional arrays
+    y_train_flat = np.ravel(y_train)
+    y_test_flat = np.ravel(y_test)
+    # Train
+    model.fit(X_train, y_train_flat)
+    trained_models.append(model)
+    y_pred=model.predict(X_test)
+    results_df.loc[names[counter], type(scaler).__name__] = metrics.accuracy_score(y_test_flat, y_pred)    
+
+print(results_df.head())
+
+chosen_model = trained_models[1] #Random forest classifier
+
+with open('random_forest_trained.pkl','wb') as f:
+    pickle.dump(chosen_model,f)
