@@ -129,7 +129,7 @@ for counter, model in enumerate(models):
 
 print(results_df.head())
 
-chosen_model = trained_models[1] #Random forest classifier
+chosen_model = trained_models[4] #K nearest neighbors
 
-with open('random_forest_trained.pkl','wb') as f:
+with open('kneareest.pkl','wb') as f:
     pickle.dump(chosen_model,f)
