@@ -1,5 +1,7 @@
 from split_data import X, X_test, y, y_test
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.datasets import make_classification
 import numpy as np
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB
@@ -75,10 +77,17 @@ fit_and_evaluate(svm)
 random_forest = RandomForestClassifier(random_state=60)
 fit_and_evaluate(random_forest)
 
+nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
+                        max_iter = 500,activation = 'relu',
+                        solver = 'adam')
+fit_and_evaluate(nn)
+
 
 scores = pd.DataFrame(results)
 
 sorted_df = scores.sort_values(by='MAE', ascending=True)
+print('CLASSIFIERS')
+print(sorted_df)
 
 scaling_techniques = [
     StandardScaler(), 
@@ -107,12 +116,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_
 scaler = StandardScaler()
 
 names = ['DecisionTreeClassifier', 'RandomForestClassifier', 'LinearDiscriminantAnalysis',
-         'SupportVectorMachine', 'KNearestNeighbor','NaiveBayes']
+         'SupportVectorMachine', 'KNearestNeighbor','NaiveBayes', 'MLPClassifier']
 models = [
     DecisionTreeClassifier(max_depth=50, min_samples_leaf=60),
     RandomForestClassifier(n_estimators=250,max_depth=10, min_samples_leaf=25),
     LinearDiscriminantAnalysis(), SVC(C=1.0, kernel='rbf', degree=3, gamma='scale'),
-    KNeighborsClassifier(n_neighbors=3),GaussianNB()
+    KNeighborsClassifier(n_neighbors=3),GaussianNB(), MLPClassifier(hidden_layer_sizes=(200,150,100,50),
+                        max_iter = 500,activation = 'relu',
+                        solver = 'adam')
 ]
 
 results_df = pd.DataFrame(columns=[type(scaler).__name__], index=names)
@@ -129,7 +140,7 @@ for counter, model in enumerate(models):
 
 print(results_df.head())
 
-chosen_model = trained_models[4] #K nearest neighbors
+chosen_model = trained_models[6] #NN
 
-with open('kneareest.pkl','wb') as f:
+with open('neuralnetwork.pkl','wb') as f:
     pickle.dump(chosen_model,f)
