@@ -20,6 +20,7 @@ import seaborn as sns
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 import pickle
+import tensorflow as tf
 
 # MAE = mean absolute error
 
@@ -35,13 +36,17 @@ def mae(y_true, y_pred):
 
 results = {'Model': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]}
 # Takes in a model, trains the model, and evaluates the model on the test set
-def fit_and_evaluate(model):
+def fit_and_evaluate(model, squeeze = False):
+    print(model)
     # Train the model
     model.fit(X, y)
     
     # Make predictions and evalute
     model_pred = model.predict(X_test)
     # Calculate true positive, false positive, true negative, false negative
+    if squeeze:
+        model_pred=tf.squeeze(model_pred)
+        model_pred=np.array([1 if x >= 0.5 else 0 for x in model_pred])
     tn, fp, fn, tp = confusion_matrix(y_test, model_pred).ravel()
 
     # Calculate accuracy
@@ -82,6 +87,27 @@ nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
                         solver = 'adam')
 fit_and_evaluate(nn)
 
+# Now, to use it with the tensorflow, I need to implement my own MLP classifier using keras module.
+
+# tf_model = tf.keras.Sequential([
+#     tf.keras.layers.Flatten(input_shape=(8,)),
+#     tf.keras.layers.Dense(150, activation='softmax'),
+#     tf.keras.layers.Dense(100, activation='softmax'),
+#     tf.keras.layers.Dense(50, activation='softmax')
+# ])
+
+tf_model = tf.keras.Sequential()
+tf_model.add(tf.keras.layers.Dense(200, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(150, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(100, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(50, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+
+tf_model.compile(optimizer='adam',
+              loss=tf.keras.losses.BinaryCrossentropy(from_logits=False,),
+              metrics=['accuracy'])
+fit_and_evaluate(tf_model, True)
+
 
 scores = pd.DataFrame(results)
 
@@ -116,14 +142,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.7, random_
 scaler = StandardScaler()
 
 names = ['DecisionTreeClassifier', 'RandomForestClassifier', 'LinearDiscriminantAnalysis',
-         'SupportVectorMachine', 'KNearestNeighbor','NaiveBayes', 'MLPClassifier']
+         'SupportVectorMachine', 'KNearestNeighbor','NaiveBayes', 'MLPClassifier', 'TF MLP Classifier']
 models = [
     DecisionTreeClassifier(max_depth=50, min_samples_leaf=60),
     RandomForestClassifier(n_estimators=250,max_depth=10, min_samples_leaf=25),
     LinearDiscriminantAnalysis(), SVC(C=1.0, kernel='rbf', degree=3, gamma='scale'),
     KNeighborsClassifier(n_neighbors=3),GaussianNB(), MLPClassifier(hidden_layer_sizes=(200,150,100,50),
                         max_iter = 500,activation = 'relu',
-                        solver = 'adam')
+                        solver = 'adam'), tf_model
 ]
 
 results_df = pd.DataFrame(columns=[type(scaler).__name__], index=names)
@@ -136,11 +162,16 @@ for counter, model in enumerate(models):
     model.fit(X_train, y_train_flat)
     trained_models.append(model)
     y_pred=model.predict(X_test)
+    # binarize the prediction
+    if counter == 7:
+        y_pred=tf.squeeze(y_pred)
+        y_pred=np.array([1 if x >= 0.5 else 0 for x in y_pred])
+    print(names[counter], metrics.accuracy_score(y_test_flat, y_pred))
     results_df.loc[names[counter], type(scaler).__name__] = metrics.accuracy_score(y_test_flat, y_pred)    
 
-print(results_df.head())
+print(results_df)
 
 chosen_model = trained_models[6] #NN
 
-with open('neuralnetwork.pkl','wb') as f:
-    pickle.dump(chosen_model,f)
+with open('neuralnetworkkeras.pkl','wb') as f:
+    pickle.dump(chosen_model,f,protocol=2)

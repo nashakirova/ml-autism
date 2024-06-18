@@ -9,7 +9,7 @@ features_reduced = ready_dataset[['A2_Score','A3_Score','A4_Score','A5_Score','A
 target = ready_dataset['Class/ASD']
 
 # Set Training and Testing Data
-X, X_test, y, y_test = train_test_split(features_reduced , target, 
+X, X_test, y, y_test = train_test_split(features , target, 
                                                     shuffle = True, 
                                                     test_size=0.2, 
                                                     random_state=1)
