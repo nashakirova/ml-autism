@@ -4,6 +4,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.datasets import make_classification
 import numpy as np
 import pandas as pd
+#import tensorflowjs as tfjs
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.tree import DecisionTreeClassifier
@@ -170,8 +171,8 @@ for counter, model in enumerate(models):
     results_df.loc[names[counter], type(scaler).__name__] = metrics.accuracy_score(y_test_flat, y_pred)    
 
 print(results_df)
-
-chosen_model = trained_models[6] #NN
+chosen_model = trained_models[7] #NN
+#tfjs.converters.save_keras_model(chosen_model, 'nn_keras')
 
 with open('neuralnetworkkeras.pkl','wb') as f:
     pickle.dump(chosen_model,f,protocol=2)
