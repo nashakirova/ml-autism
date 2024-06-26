@@ -36,16 +36,16 @@ class FlowerClient(fl.client.NumPyClient):
    def get_parameters(self, config):
        return self.model.get_weights()
  
-   def fit(self, parameters, config, x_train_len):
-       self.model.compile("adam", "sparse_categorical_crossentropy", 
+   def fit(self, parameters, config):
+       self.model.compile("adam", tf.keras.losses.BinaryCrossentropy(from_logits=False,), 
                           metrics=["accuracy"])
        self.model.set_weights(parameters)
        self.model.fit(self.X_train, self.y_train, 
                       epochs=1, batch_size=32, verbose=0)
-       return self.model.get_weights(), x_train_len, {}
+       return self.model.get_weights(), len(X), {}
  
    def evaluate(self, parameters, config):
-       self.model.compile("adam", "sparse_categorical_crossentropy", 
+       self.model.compile("adam", tf.keras.losses.BinaryCrossentropy(from_logits=False,), 
                           metrics=["accuracy"])
        self.model.set_weights(parameters)
        loss, accuracy = self.model.evaluate(self.X_test, self.y_test, 
