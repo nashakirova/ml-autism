@@ -2,6 +2,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from prepare import dataset
 import pandas as pd
+import numpy as np
 
 
 ready_dataset = dataset.copy()

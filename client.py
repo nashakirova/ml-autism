@@ -10,28 +10,29 @@ import tensorflow as tf
 from functools import partial
 import pickle
 
-NUM_CLIENTS = 5
-'''
-x_split = np.split(x_train, NUM_CLIENTS)
-y_split = np.split(y_train, NUM_CLIENTS)
+NUM_CLIENTS = 2
+X_divided = X[:len(X)-1]
+y_divided=y[:len(y)-1]
+x_split = np.split(X_divided, NUM_CLIENTS)
+y_split = np.split(y_divided, NUM_CLIENTS)
 num_data_in_split = x_split[0].shape[0]
 train_split = 0.8
 x_trains, y_trains, x_tests, y_tests = {}, {}, {}, {}
 for idx, (client_x, client_y) in enumerate(zip(x_split, y_split)):
-   train_end_idx = int(0.8 * num_data_in_split)
+   train_end_idx = int(train_split * num_data_in_split)
    x_trains[str(idx)] = client_x[:train_end_idx]
    y_trains[str(idx)] = client_y[:train_end_idx]
    x_tests[str(idx)] = client_x[train_end_idx:]
    y_tests[str(idx)] = client_y[train_end_idx:]
-'''
 class FlowerClient(fl.client.NumPyClient):
-   def __init__(self, model, X_train, y_train, X_test, y_test):
+   def __init__(self, cid, model):
        self.model = model
        self.model.build((32, 28, 28, 1))
-       self.X_train = X_train
-       self.y_train = y_train
-       self.X_test = X_test
-       self.y_test = y_test
+       self.cid=cid
+       self.X_train = x_trains[cid]
+       self.y_train = y_trains[cid]
+       self.X_test = x_tests[cid]
+       self.y_test = y_tests[cid]
  
    def get_parameters(self, config):
        return self.model.get_weights()
@@ -52,46 +53,44 @@ class FlowerClient(fl.client.NumPyClient):
                                             batch_size=32, verbose=0)
        return loss, len(self.X_test), {"accuracy": accuracy}
 
-def create_client(
-   cid, model, x_trains, y_trains, x_tests, y_tests
-) -> FlowerClient:
-   return FlowerClient(model, x_trains[cid], y_trains[cid], x_tests[cid], y_tests[cid])
+def create_client(cid) -> FlowerClient:
+   return FlowerClient(cid, tf_model).to_client()
 
 with open("neuralnetworkkeras.pkl", 'rb') as picklefile:
-    nnmodel = pickle.load(picklefile)
-client_fnc = partial(
-   create_client,
-   model=nnmodel,
-   x_trains=X,
-   y_trains=y,
-   x_tests=X_test,
-   y_tests=y_test,
-)
-
+      #nnmodel = pickle.load(picklefile)
+      tf_model = tf.keras.Sequential()
+      tf_model.add(tf.keras.layers.Dense(200, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dense(150, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dense(100, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dense(50, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+# client_fnc = partial(
+#    create_client,
+#    model=tf_model,
+#    x_trains=x_trains,
+#    y_trains=y_trains,
+#    x_tests=x_tests,
+#    y_tests=y_tests,
+# )
+#fl.client.start_client(server_address="[::]:8080", client_fn=create_client)
+#app = fl.client.ClientApp(client_fn=create_client)
 def weighted_average(metrics):
-   print(metrics)
    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
    examples = [num_examples for num_examples, _ in metrics]
    return {"accuracy": int(sum(accuracies)) / int(sum(examples))}
- 
-# Stwórzmy strategię FedAvg
 strategy = fl.server.strategy.FedAvg(
-   fraction_fit=1.0,  # Samplujmy 100% dostępnych klientów na trening
-   fraction_evaluate=1.0,  # Samplujmy 100% dostępnych klientów na evaluację
-   min_fit_clients=5,  # Nie samplujmy mniej niż 5 klientów na trening
-   min_evaluate_clients=5,  #Nie samplujmy mniej niż 5 klientów na evaluację
-   min_available_clients=5,  # Poczekaj aż 5 klientów jest dostępnych
-   evaluate_metrics_aggregation_fn=weighted_average, # Uśrednianie metryk
+   fraction_fit=1.0,  
+   fraction_evaluate=1.0, 
+   min_fit_clients=2,  
+   min_evaluate_clients=2, 
+   min_available_clients=2, 
+   evaluate_metrics_aggregation_fn=weighted_average
 )
 
-fl.client.start_client(server_address="[::]:8080", client=FlowerClient(nnmodel, X, y, X_test, y_test).to_client())
-'''
 fl.simulation.start_simulation(
-   client_fn=client_fnc,
+   client_fn=create_client,
    num_clients=NUM_CLIENTS,
    config=fl.server.ServerConfig(num_rounds=10),
    strategy=strategy,
    client_resources={"num_cpus": 1, "num_gpus": 0},
-   ray_init_args = {"include_dashboard": True}
 )
-'''
