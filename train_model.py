@@ -96,7 +96,8 @@ fit_and_evaluate(nn)
 #     tf.keras.layers.Dense(100, activation='softmax'),
 #     tf.keras.layers.Dense(50, activation='softmax')
 # ])
-
+import time
+start_time = time.time()
 tf_model = tf.keras.Sequential()
 tf_model.add(tf.keras.layers.Dense(200, input_shape=(10,), activation='relu'))
 tf_model.add(tf.keras.layers.Dense(150, input_shape=(10,), activation='relu'))
@@ -108,6 +109,7 @@ tf_model.compile(optimizer='adam',
               loss=tf.keras.losses.BinaryCrossentropy(from_logits=False,),
               metrics=['accuracy'])
 fit_and_evaluate(tf_model, True)
+print("NAILIAAAA--- %s seconds ---" % (time.time() - start_time))
 
 
 scores = pd.DataFrame(results)
