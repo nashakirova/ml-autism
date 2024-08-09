@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 from prepare import dataset
 import seaborn as sns
 
-# fig, axis = plt.subplots(10, 2, squeeze=False) 
+fig, axis = plt.subplots(10, 2, squeeze=False) 
 plt.style.use('fivethirtyeight')
 data = dataset.copy()
-'''
+
 data_autism = data.query('autism==1')
 data_nonautism = data.query('autism==0')
 # Histogram of country distribution
@@ -92,7 +92,7 @@ plt.figtext(0.25, top, 'I find it difficult to work out people’s intentions', 
 fig.tight_layout(h_pad=20.0)
 
 plt.show()
-'''
+
 '''
 As per the outcome, it seems like questions 1 and 8 give pretty incolclusive results with almost 
 same percentages responding towards the autism scoring answer. In the training, we will therefore compare
@@ -104,26 +104,27 @@ Let's observe correlation between the features
 '''
 
 
-df=data.copy()
-df.describe()
-freq = df['country_of_res'].value_counts(normalize=True)
-freq_ethnicity = df['ethnicity'].value_counts(normalize=True)
-freq_relation = df['ethnicity'].value_counts(normalize=True)
-df_v1 = df.copy()
-df_v1.head()
-object_cols = [col for col in df_v1.columns if df_v1[col].dtype == "object"]
-# Map the values to their frequencies
-df_v1['contry-freq'] = df_v1['country_of_res'].map(freq)
-df_v1['ethnicity-freq']=df_v1['ethnicity'].map(freq_ethnicity)
-df_v1['relation-freq']=df_v1['relation'].map(freq_relation)
-df_v2=df.drop("country_of_res", axis=1)
-df_v2=df_v2.drop("ethnicity", axis=1)
-df_v2 = df_v2.drop("age_desc", axis=1)
-df_v2 = df_v2.drop("relation", axis=1)
-df_v3=df_v2.replace({'jundice': "yes"}, 1).replace({'jundice' : "no"}, 0).replace({'austim': "yes"}, 1).replace({'austim' : "no"}, 0).replace({'used_app_before': "yes"}, 1).replace({'used_app_before' : "no"}, 0).replace({'gender':'f'},1).replace({'gender':'m'},0)
-df_v3.head()
-plt.figure(figsize=(10,9))
-ax = sns.heatmap(df_v3.corr(), annot=True, cmap="seismic", annot_kws={"fontsize":12})
-ax.tick_params(axis='both', which='major', labelsize=12)
-plt.tight_layout()
-plt.savefig('correlation.png')
+# df=data.copy()
+# df.describe()
+# freq = df['country_of_res'].value_counts(normalize=True)
+# freq_ethnicity = df['ethnicity'].value_counts(normalize=True)
+# freq_relation = df['ethnicity'].value_counts(normalize=True)
+# df_v1 = df.copy()
+# df_v1.head()
+# object_cols = [col for col in df_v1.columns if df_v1[col].dtype == "object"]
+# # Map the values to their frequencies
+# df_v1['contry-freq'] = df_v1['country_of_res'].map(freq)
+# df_v1['ethnicity-freq']=df_v1['ethnicity'].map(freq_ethnicity)
+# df_v1['relation-freq']=df_v1['relation'].map(freq_relation)
+# df_v2=df.drop("country_of_res", axis=1)
+# df_v2=df_v2.drop("ethnicity", axis=1)
+# df_v2 = df_v2.drop("age_desc", axis=1)
+# df_v2 = df_v2.drop("relation", axis=1)
+# df_v3=df_v2.replace({'jundice': "yes"}, 1).replace({'jundice' : "no"}, 0).replace({'austim': "yes"}, 1).replace({'austim' : "no"}, 0).replace({'used_app_before': "yes"}, 1).replace({'used_app_before' : "no"}, 0).replace({'gender':'f'},1).replace({'gender':'m'},0)
+# df_v3.head()
+# plt.figure(figsize=(10,9))
+# ax = sns.heatmap(df_v3.corr(), annot=True, cmap="seismic", annot_kws={"fontsize":12})
+# ax.tick_params(axis='both', which='major', labelsize=12)
+# plt.tight_layout()
+# plt.show()
+#plt.savefig('correlation.png')

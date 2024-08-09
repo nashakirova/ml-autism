@@ -3,8 +3,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 # Select Features
 features = ready_dataset[['A1_Score','A2_Score','A3_Score','A4_Score','A5_Score','A6_Score','A7_Score','A8_Score','A9_Score','A10_Score']]
-features_reduced = ready_dataset[['A2_Score','A3_Score','A4_Score','A5_Score','A6_Score','A7_Score','A9_Score','A10_Score']]
-
+features_reduced = ready_dataset[['A3_Score','A4_Score','A5_Score','A6_Score','A9_Score',]]
+extra=ready_dataset[['age','jundice','A1_Score','A2_Score','A3_Score','A4_Score','A5_Score','A6_Score','A7_Score','A8_Score','A9_Score','A10_Score']]
 # Select Target
 target = ready_dataset['Class/ASD']
 

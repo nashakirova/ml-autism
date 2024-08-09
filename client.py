@@ -8,10 +8,10 @@ from functools import partial
 import pickle
 
 print('CLIENT IS HERE')
-NUM_CLIENTS = 40
+NUM_CLIENTS = 30
 #563
-X_divided = X[:len(X)-3]
-y_divided=y[:len(y)-3]
+X_divided = X[:len(X)-23]
+y_divided=y[:len(y)-23]
 x_split = np.split(X_divided, NUM_CLIENTS)
 y_split = np.split(y_divided, NUM_CLIENTS)
 num_data_in_split = x_split[0].shape[0]
@@ -41,7 +41,7 @@ class FlowerClient(fl.client.NumPyClient):
                           metrics=["accuracy"])
        self.model.set_weights(parameters)
        self.model.fit(self.X_train, self.y_train, 
-                      epochs=1, batch_size=32, verbose=0)
+                      epochs=10, batch_size=32, verbose=0)
        return self.model.get_weights(), len(X), {}
  
    def evaluate(self, parameters, config):
@@ -53,8 +53,6 @@ class FlowerClient(fl.client.NumPyClient):
        return loss, len(self.X_test), {"accuracy": accuracy}
 
 def create_client(cid) -> FlowerClient:
-   external_cid = sys.argv[1] or 1
-   cid = external_cid
    return FlowerClient(cid, tf_model).to_client()
 
 with open("neuralnetworkkeras.pkl", 'rb') as picklefile:
@@ -73,7 +71,7 @@ with open("neuralnetworkkeras.pkl", 'rb') as picklefile:
 #    x_tests=x_tests,
 #    y_tests=y_tests,
 # )
-fl.client.start_client(server_address="[::]:8080", client_fn=create_client)
+#fl.client.start_client(server_address="[::]:8080", client_fn=create_client)
 #app = fl.client.ClientApp(client_fn=create_client)
 def weighted_average(metrics):
    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
@@ -88,10 +86,14 @@ strategy = fl.server.strategy.FedAvg(
    evaluate_metrics_aggregation_fn=weighted_average
 )
 
-# fl.simulation.start_simulation(
-#    client_fn=create_client,
-#    num_clients=NUM_CLIENTS,
-#    config=fl.server.ServerConfig(num_rounds=10),
-#    strategy=strategy,
-#    client_resources={"num_cpus": 1, "num_gpus": 0},
-# )
+dp_strategy = fl.server.strategy.DifferentialPrivacyServerSideFixedClipping(
+    strategy, 1.0, 1.0, 2
+)
+
+fl.simulation.start_simulation(
+   client_fn=create_client,
+   num_clients=NUM_CLIENTS,
+   config=fl.server.ServerConfig(num_rounds=3),
+   strategy=strategy,
+   client_resources={"num_cpus": 1, "num_gpus": 0},
+)
