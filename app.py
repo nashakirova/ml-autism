@@ -5,7 +5,7 @@ from typing import Optional, List
 import numpy as np
 import subprocess
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user
+from flask_login import LoginManager, UserMixin, login_user, login_required
 
 app = Flask(__name__)
 CORS(app) 
@@ -28,15 +28,29 @@ with app.app_context():
 def loader_user(user_id):
     return Users.query.get(user_id)
 
-def validateUser(username, password):
+@app.route('/register', methods=["POST"])
+def register():
+        username = request.get_json()['username']
+        password = request.get_json()['password']
+        user = Users(username=username,
+                     password=password)
+        db.session.add(user)
+        db.session.commit()
+        return 
+ 
+ 
+@app.route("/login", methods=["POST"])
+def login():
+        username = request.get_json()['username']
+        password = request.get_json()['password']
         user = Users.query.filter_by(
             username=username).first()
         if user.password == password:
             login_user(user)
-            return True
-        return False
+            return 
 
 @app.route('/model')
+@login_required
 def get_model():
         file = np.load("weights.npz")
 
@@ -48,8 +62,8 @@ def get_model():
 
 
 @app.route('/model', methods=['POST'])
+@login_required
 def retrain_model():
-        validateUser(request.get_json()['username'], request.get_json()['password'])
         answers = request.get_json()['answers']
         feature = 1 if request.get_json()['verdict']=="1" else 0
         s = ','.join(str(x) for x in answers)+','+str(feature) + '\r\n'
