@@ -8,10 +8,10 @@ from functools import partial
 import pickle
 
 print('CLIENT IS HERE')
-NUM_CLIENTS = 30
+NUM_CLIENTS = 200
 #563
-X_divided = X[:len(X)-23]
-y_divided=y[:len(y)-23]
+X_divided = X[:len(X)-163]
+y_divided=y[:len(y)-163]
 x_split = np.split(X_divided, NUM_CLIENTS)
 y_split = np.split(y_divided, NUM_CLIENTS)
 num_data_in_split = x_split[0].shape[0]
@@ -93,7 +93,7 @@ dp_strategy = fl.server.strategy.DifferentialPrivacyServerSideFixedClipping(
 fl.simulation.start_simulation(
    client_fn=create_client,
    num_clients=NUM_CLIENTS,
-   config=fl.server.ServerConfig(num_rounds=3),
+   config=fl.server.ServerConfig(num_rounds=2),
    strategy=strategy,
    client_resources={"num_cpus": 1, "num_gpus": 0},
 )

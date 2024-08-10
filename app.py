@@ -45,9 +45,12 @@ def login():
         password = request.get_json()['password']
         user = Users.query.filter_by(
             username=username).first()
+        if user is None:
+            return jsonify({}), 401
         if user.password == password:
             login_user(user)
-            return 
+            return jsonify({}), 200
+        return jsonify({}), 401
 
 @app.route('/model')
 @login_required
