@@ -37,15 +37,15 @@ def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, iteration, startin
     accuracy = accuracy_score(y_test_flat, model_pred)
     sensitivity = tp / (tp + fn)
     specificity = tn / (tn + fp)
-    local_results = {'Model': [], 'Starting point': [],'Iteration': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]}
-    local_results['Model'].append(model)
-    local_results['Accuracy'].append(accuracy)
-    local_results['Sensitivity'].append(sensitivity)
-    local_results['Specificity'].append(specificity)
-    local_results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
-    local_results['MAE'].append(mae(y_test_flat, model_pred))
-    local_results['Starting point'].append(starting_point)
-    local_results['Iteration'].append(iteration)
+    local_results = {}
+    local_results['Model']=model
+    local_results['Accuracy']=accuracy
+    local_results['Sensitivity']=sensitivity
+    local_results['Specificity']=specificity
+    local_results['Mean Score']=(accuracy+sensitivity+specificity)/3
+    local_results['MAE']=mae(y_test_flat, model_pred)
+    local_results['Starting point']=starting_point
+    local_results['Iteration']=iteration
     row_list.append(local_results)
 thresholds = [250, 350, 450, 550]
 chunk=50
