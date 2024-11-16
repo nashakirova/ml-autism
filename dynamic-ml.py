@@ -21,22 +21,18 @@ import seaborn as sns
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 import pickle
+import csv
 import tensorflow as tf
 def mae(y_true, y_pred):
     return np.mean(abs(y_true - y_pred))
-results = {'Model': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]}
-def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, squeeze = False,):
+results = pd.DataFrame({'Model': [], 'Starting point': [],'Iteration': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]})
+def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, iteration, starting_point):
     print(model)
 
     y_train_flat = np.ravel(my_y)
-    y_test_flat = np.ravel(my_test_y)
-    if squeeze:
-        model.fit(my_x, y_train_flat, epochs=10)
+    y_test_flat = np.ravel(my_test_y)    
     model.fit(my_x, y_train_flat)
-    model_pred = model.predict(my_test_x)
-    if squeeze:
-        model_pred=tf.squeeze(model_pred)
-        model_pred=np.array([1 if x >= 0.5 else 0 for x in model_pred])
+    model_pred = model.predict(my_test_x)    
     tn, fp, fn, tp = confusion_matrix(my_test_y, model_pred).ravel()
     accuracy = accuracy_score(y_test_flat, model_pred)
     sensitivity = tp / (tp + fn)
@@ -47,42 +43,45 @@ def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, squeeze = False,):
     results['Specificity'].append(specificity)
     results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
     results['MAE'].append(mae(y_test_flat, model_pred))
+    results['Starting point'].append(starting_point)
+    results['Iteration'].append(iteration)
 thresholds = [250, 350, 450, 550]
 chunk=50
 for threshold in thresholds:
     print("Starting with ")
     print(threshold)
+    starting_point=threshold
+    i=0
     while threshold < len(X):
         X_chunk = X[:threshold]
         Y_chunk= y[:threshold]
         x_test_chunk=X_test[:threshold]
         y_test_chunk=y_test[:threshold]
         nb_gauss = GaussianNB()
-        fit_and_evaluate(nb_gauss, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(nb_gauss, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         decision_tree = DecisionTreeClassifier()
-        fit_and_evaluate(decision_tree, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(decision_tree, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         linear = LinearDiscriminantAnalysis()
-        fit_and_evaluate(linear, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(linear, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         knn = KNeighborsClassifier(n_neighbors=10)
-        fit_and_evaluate(knn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(knn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         svm = SVC(C = 1000, gamma = 0.1)
-        fit_and_evaluate(svm, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(svm, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         random_forest = RandomForestClassifier(random_state=60)
-        fit_and_evaluate(random_forest, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(random_forest, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
 
         nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
                                 max_iter = 10,activation = 'relu',
                                 solver = 'adam')
-        fit_and_evaluate(nn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
+        fit_and_evaluate(nn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk),i, starting_point
         threshold+=chunk
-        print("chunk size:")
-        print(threshold)
-        print(results)
+        i+=1
+results.to_csv('dynamic_out.csv', index=False)  
     
     
 
