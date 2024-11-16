@@ -25,7 +25,7 @@ import csv
 import tensorflow as tf
 def mae(y_true, y_pred):
     return np.mean(abs(y_true - y_pred))
-results = pd.DataFrame({'Model': [], 'Starting point': [],'Iteration': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]})
+row_list=[]
 def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, iteration, starting_point):
     print(model)
 
@@ -37,14 +37,16 @@ def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, iteration, startin
     accuracy = accuracy_score(y_test_flat, model_pred)
     sensitivity = tp / (tp + fn)
     specificity = tn / (tn + fp)
-    results['Model'].append(model)
-    results['Accuracy'].append(accuracy)
-    results['Sensitivity'].append(sensitivity)
-    results['Specificity'].append(specificity)
-    results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
-    results['MAE'].append(mae(y_test_flat, model_pred))
-    results['Starting point'].append(starting_point)
-    results['Iteration'].append(iteration)
+    local_results = {'Model': [], 'Starting point': [],'Iteration': [], 'Accuracy': [], 'Sensitivity': [], 'Specificity': [], 'Mean Score':[], 'MAE':[]}
+    local_results['Model'].append(model)
+    local_results['Accuracy'].append(accuracy)
+    local_results['Sensitivity'].append(sensitivity)
+    local_results['Specificity'].append(specificity)
+    local_results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
+    local_results['MAE'].append(mae(y_test_flat, model_pred))
+    local_results['Starting point'].append(starting_point)
+    local_results['Iteration'].append(iteration)
+    row_list.append(local_results)
 thresholds = [250, 350, 450, 550]
 chunk=50
 for threshold in thresholds:
@@ -78,9 +80,12 @@ for threshold in thresholds:
         nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
                                 max_iter = 10,activation = 'relu',
                                 solver = 'adam')
-        fit_and_evaluate(nn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk),i, starting_point
+        fit_and_evaluate(nn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk,i, starting_point)
         threshold+=chunk
         i+=1
+
+results = pd.DataFrame(row_list)
+
 results.to_csv('dynamic_out.csv', index=False)  
     
     
