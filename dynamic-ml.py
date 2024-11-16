@@ -50,7 +50,8 @@ def fit_and_evaluate(model, my_y, my_x, my_test_x, my_test_y, squeeze = False,):
 thresholds = [250, 350, 450, 550]
 chunk=50
 for threshold in thresholds:
-    print("Starting with " + threshold)
+    print("Starting with ")
+    print(threshold)
     while len(X_chunk) < len(X):
         X_chunk = X[:threshold]
         Y_chunk= y[:threshold]
@@ -79,7 +80,8 @@ for threshold in thresholds:
                                 solver = 'adam')
         fit_and_evaluate(nn, Y_chunk, X_chunk, x_test_chunk, y_test_chunk)
         threshold+=chunk
-        print("chunk size:" + threshold)
+        print("chunk size:")
+        print(threshold)
         print(results)
     
     
