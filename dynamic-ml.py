@@ -52,7 +52,7 @@ chunk=50
 for threshold in thresholds:
     print("Starting with ")
     print(threshold)
-    while len(X_chunk) < len(X):
+    while threshold < len(X):
         X_chunk = X[:threshold]
         Y_chunk= y[:threshold]
         x_test_chunk=X_test[:threshold]
