@@ -8,10 +8,10 @@ from functools import partial
 import pickle
 
 print('CLIENT IS HERE')
-NUM_CLIENTS = 200
+NUM_CLIENTS = 8
 #563
-X_divided = X[:len(X)-163]
-y_divided=y[:len(y)-163]
+X_divided = X[:len(X)-3]
+y_divided=y[:len(y)-3]
 x_split = np.split(X_divided, NUM_CLIENTS)
 y_split = np.split(y_divided, NUM_CLIENTS)
 num_data_in_split = x_split[0].shape[0]
@@ -59,9 +59,13 @@ with open("neuralnetworkkeras.pkl", 'rb') as picklefile:
       #nnmodel = pickle.load(picklefile)
       tf_model = tf.keras.Sequential()
       tf_model.add(tf.keras.layers.Dense(200, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dropout(0.2))
       tf_model.add(tf.keras.layers.Dense(150, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dropout(0.2))
       tf_model.add(tf.keras.layers.Dense(100, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dropout(0.2))
       tf_model.add(tf.keras.layers.Dense(50, input_shape=(10,), activation='relu'))
+      tf_model.add(tf.keras.layers.Dropout(0.2))
       tf_model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 # client_fnc = partial(
 #    create_client,
@@ -93,7 +97,7 @@ dp_strategy = fl.server.strategy.DifferentialPrivacyServerSideFixedClipping(
 fl.simulation.start_simulation(
    client_fn=create_client,
    num_clients=NUM_CLIENTS,
-   config=fl.server.ServerConfig(num_rounds=2),
+   config=fl.server.ServerConfig(num_rounds=8),
    strategy=strategy,
    client_resources={"num_cpus": 1, "num_gpus": 0},
 )

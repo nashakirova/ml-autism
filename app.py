@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app, origins=['http://localhost:3000'], supports_credentials=True) 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "SuperSecretKey"
 db = SQLAlchemy()
@@ -65,7 +65,6 @@ def get_model():
 
 
 @app.route('/model', methods=['POST'])
-@login_required
 def retrain_model():
         answers = request.get_json()['answers']
         feature = 1 if request.get_json()['verdict']=="1" else 0

@@ -9,6 +9,9 @@ import pickle
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from config import NUMS_CLIENT
+from config import SRV_URL
+
 print('ML CLIENT starting')
 class FlowerClient(fl.client.NumPyClient):
    def __init__(self, model):
@@ -58,4 +61,4 @@ def create_client(cid) -> FlowerClient:
     tf_model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
     return FlowerClient(tf_model).to_client()
 
-fl.client.start_client(server_address="[::]:8080", client_fn=create_client)
+fl.client.start_client(server_address=SRV_URL, client_fn=create_client)

@@ -26,6 +26,7 @@ tf_model.compile("adam", tf.keras.losses.BinaryCrossentropy(from_logits=False,),
 from split_data import X_test, y_test
 loss, accuracy = tf_model.evaluate(X_test, y_test, 
                                             batch_size=32, verbose=0)
-print(loss)
+def mae(y_true, y_pred):
+    return np.mean(abs(y_true - y_pred))
 
 print(accuracy)

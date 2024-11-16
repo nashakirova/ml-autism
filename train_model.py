@@ -55,28 +55,28 @@ def fit_and_evaluate(model, squeeze = False):
     results['Mean Score'].append((accuracy+sensitivity+specificity)/3)
     results['MAE'].append(mae(y_test_flat, model_pred))
 
-nb_gauss = GaussianNB()
-fit_and_evaluate(nb_gauss)
+# nb_gauss = GaussianNB()
+# fit_and_evaluate(nb_gauss)
 
-decision_tree = DecisionTreeClassifier()
-fit_and_evaluate(decision_tree)
+# decision_tree = DecisionTreeClassifier()
+# fit_and_evaluate(decision_tree)
 
-linear = LinearDiscriminantAnalysis()
-fit_and_evaluate(linear)
+# linear = LinearDiscriminantAnalysis()
+# fit_and_evaluate(linear)
 
-knn = KNeighborsClassifier(n_neighbors=10)
-fit_and_evaluate(knn)
+# knn = KNeighborsClassifier(n_neighbors=10)
+# fit_and_evaluate(knn)
 
-svm = SVC(C = 1000, gamma = 0.1)
-fit_and_evaluate(svm)
+# svm = SVC(C = 1000, gamma = 0.1)
+# fit_and_evaluate(svm)
 
-random_forest = RandomForestClassifier(random_state=60)
-fit_and_evaluate(random_forest)
+# random_forest = RandomForestClassifier(random_state=60)
+# fit_and_evaluate(random_forest)
 
-nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
-                        max_iter = 10,activation = 'relu',
-                        solver = 'adam')
-fit_and_evaluate(nn)
+# nn = MLPClassifier(hidden_layer_sizes=(200,150,100,50),
+#                         max_iter = 10,activation = 'relu',
+#                         solver = 'adam')
+# fit_and_evaluate(nn)
 
 # Now, to use it with the tensorflow, I need to implement my own MLP classifier using keras module.
 
@@ -89,10 +89,10 @@ fit_and_evaluate(nn)
 import time
 start_time = time.time()
 tf_model = tf.keras.Sequential()
-tf_model.add(tf.keras.layers.Dense(200, input_shape=(12,), activation='relu'))
-tf_model.add(tf.keras.layers.Dense(150, input_shape=(12,), activation='relu'))
-tf_model.add(tf.keras.layers.Dense(100, input_shape=(12,), activation='relu'))
-tf_model.add(tf.keras.layers.Dense(50, input_shape=(12,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(200, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(150, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(100, input_shape=(10,), activation='relu'))
+tf_model.add(tf.keras.layers.Dense(50, input_shape=(10,), activation='relu'))
 tf_model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 
 tf_model.compile(optimizer='adam',
